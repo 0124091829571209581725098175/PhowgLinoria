@@ -2603,36 +2603,19 @@ do
 		Slider:Display();
 
 		local size = get_count();
-		local get_slider = function(count)
-			local slider = Slider;
-			for i=1,count-1 do
-				slider = slider.Parent;
-			end;
-			return slider;
+		local root = Slider;
+		while root.Parent do
+			root.Outer.Size = UDim2.new(1, 0, 1, 0);
+			root.Outer.Position = UDim2.new(1, 2, 0, 0);
+			root = root.Parent;
 		end;
-
-		local wanted_size = (Groupbox.Container.AbsoluteSize.X) / size;
-		wanted_size += size - 2;
-
-		local n_size = math.round(wanted_size);
-
-		for i = size, 1, -1 do
-			local slider = get_slider(i);
-			slider.Outer.Size = UDim2.new(0, n_size - 3, 0, 13)
-			slider.Outer.Position = UDim2.new(1, 2, 0, 0);
-			slider.MaxSize = slider.Outer.AbsoluteSize.X - 2;
-
-			slider:Display();
-		end;
-
-		if (n_size ~= wanted_size) then -- jank fix..
-			local slider = get_slider(1);
-			slider.Outer.Size = UDim2.new(0, n_size - (size + 1), 0, 13)
-			slider.Outer.Position = UDim2.new(1, 2, 0, 0);
-			slider.MaxSize = slider.Outer.AbsoluteSize.X - 2;
-
-			slider:Display();
-		end;
+		root.Outer.Size = UDim2.new(1 / size, -2 * (size - 1) / size, 0, 13);
+		Library:GiveSignal(SliderOuter:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+			Slider.MaxSize = math.max(SliderOuter.AbsoluteSize.X - 2, 1);
+			Slider:Display();
+		end));
+		Slider.MaxSize = math.max(SliderOuter.AbsoluteSize.X - 2, 1);
+		Slider:Display();
 
 		if (not SliderParent) then
 			table.insert(Blanks, Groupbox:AddBlank(Info.BlankSize or 6));
