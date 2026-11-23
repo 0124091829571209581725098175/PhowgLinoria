@@ -1465,6 +1465,7 @@ do
 		function KeyPicker:SetValue(Data)
 			local Key, Mode = Data[1], Data[2];
 			DisplayLabel.Text = Key;
+			if KeyPicker.Value ~= Key or KeyPicker.Mode ~= Mode then KeyPicker.Toggled = false end;
 			KeyPicker.Value, KeyPicker.Mode = Key, Mode;
 			for mode, button in buttons do
 				button.TextColor3 = mode == KeyPicker.Mode and Library.AccentColor or Library.FontColor;
@@ -1564,6 +1565,7 @@ do
 					task.defer(function() Library.KeybindPicking = false end);
 
 					DisplayLabel.Text = Key;
+					if KeyPicker.Value ~= Key then KeyPicker.Toggled = false end;
 					KeyPicker.Value = Key;
 
 					Library:SafeCallback(KeyPicker.ChangedCallback, Input.KeyCode or Input.UserInputType)
@@ -4480,6 +4482,7 @@ function Library:CreateWindow(...)
 		if Processed or Library.KeybindPicking or InputService:GetFocusedTextBox() then return end
 		if type(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
 			local key = Library.ToggleKeybind.Value
+			if key == '...' or key == 'None' then key = 'RightControl' end
 			if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == key
 				or key == 'MB1' and Input.UserInputType == Enum.UserInputType.MouseButton1
 				or key == 'MB2' and Input.UserInputType == Enum.UserInputType.MouseButton2 then
