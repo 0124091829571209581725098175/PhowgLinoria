@@ -1863,7 +1863,7 @@ do
 			SubButton.Outer, SubButton.Inner, SubButton.Label = CreateBaseButton(SubButton)
 
 			SubButton.Outer.Position = UDim2.new(1, 3, 0, 0)
-			SubButton.Outer.Size = UDim2.fromOffset(self.Outer.AbsoluteSize.X - 3, self.Outer.AbsoluteSize.Y)
+			SubButton.Outer.Size = UDim2.new(1, -3, 1, 0)
 			SubButton.Outer.Parent = self.Outer
 
 			function SubButton:AddTooltip(tooltip)
