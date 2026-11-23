@@ -1191,6 +1191,7 @@ do
 		local ParentObj = self;
 		local ToggleLabel = self.TextLabel;
 		local Container = self.Container;
+		Info.Text = Info.Text or ToggleLabel.Text or Idx;
 
 		--assert(Info.Default, 'AddKeyPicker: Missing default value.');
 		Info.Default = Info.Default or "...";
@@ -1582,6 +1583,12 @@ do
 
 		KeyPicker:SetupConnection(InputService.InputBegan:Connect(function(Input, Processed)
 			if (not Picking and not Library.KeybindPicking and not Processed and not InputService:GetFocusedTextBox()) then
+				local menu = Library.ToggleKeybind;
+				local menuKey = menu and menu.Value;
+				if menuKey == '...' or menuKey == 'None' then menuKey = 'Y' end;
+				if menu and menu ~= KeyPicker and (Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == menuKey
+					or menuKey == 'MB1' and Input.UserInputType == Enum.UserInputType.MouseButton1
+					or menuKey == 'MB2' and Input.UserInputType == Enum.UserInputType.MouseButton2) then return end;
 				if ParentObj.Type == 'Toggle' and not ParentObj.Value and not KeyPicker.SyncToggleState then return end;
 				if KeyPicker.Mode == 'Toggle' then
 					local Key = KeyPicker.Value;
@@ -4482,7 +4489,7 @@ function Library:CreateWindow(...)
 		if Processed or Library.KeybindPicking or InputService:GetFocusedTextBox() then return end
 		if type(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
 			local key = Library.ToggleKeybind.Value
-			if key == '...' or key == 'None' then key = 'RightControl' end
+			if key == '...' or key == 'None' then key = 'Y' end
 			if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == key
 				or key == 'MB1' and Input.UserInputType == Enum.UserInputType.MouseButton1
 				or key == 'MB2' and Input.UserInputType == Enum.UserInputType.MouseButton2 then
