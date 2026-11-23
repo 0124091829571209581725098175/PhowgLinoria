@@ -2251,7 +2251,7 @@ do
 		});
 
 		local ToggleLabel = Library:CreateLabel({
-			Size = UDim2.new(0, 216, 1, 0);
+			Size = UDim2.new(0, math.max(Container.AbsoluteSize.X - 19, 0), 1, 0);
 			Position = UDim2.new(1, 6, 0, 0);
 			TextSize = 14;
 			Text = Info.Text;
@@ -2267,6 +2267,10 @@ do
 			SortOrder = Enum.SortOrder.LayoutOrder;
 			Parent = ToggleLabel;
 		});
+
+		Library:GiveSignal(Container:GetPropertyChangedSignal('AbsoluteSize'):Connect(function()
+			ToggleLabel.Size = UDim2.new(0, math.max(Container.AbsoluteSize.X - 19, 0), 1, 0);
+		end));
 
 		local ToggleRegion = Library:Create('Frame', {
 			BackgroundTransparency = 1;
