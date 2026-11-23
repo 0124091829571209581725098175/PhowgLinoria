@@ -1347,6 +1347,8 @@ do
 			local button;
 			button = contextmenu:AddOption(mode, function()
 				KeyPicker.Mode = mode;
+				KeyPicker.Toggled = false;
+				KeyPicker:Update();
 				button.TextColor3 = Library.AccentColor;
 				for mode, _button in buttons do
 					if (_button ~= button) then
@@ -1434,6 +1436,7 @@ do
 		local mb1, mb2 = Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2;
 		local enum_keycode = Enum.KeyCode;
 		function KeyPicker:GetState()
+			if ParentObj.Type == 'Toggle' and not ParentObj.Value then return false end;
 			local mode = KeyPicker.Mode;
 			if mode == 'Always' then
 				return true;
@@ -1521,6 +1524,7 @@ do
 		PickOuter.InputBegan:Connect(function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
 				Picking = true;
+				Library.KeybindPicking = true;
 
 				DisplayLabel.Text = '';
 
@@ -1554,8 +1558,10 @@ do
 						Key = 'MB2';
 					end;
 
+					if not Key then return end;
 					Break = true;
 					Picking = false;
+					task.defer(function() Library.KeybindPicking = false end);
 
 					DisplayLabel.Text = Key;
 					KeyPicker.Value = Key;
@@ -1573,7 +1579,8 @@ do
 		end);
 
 		KeyPicker:SetupConnection(InputService.InputBegan:Connect(function(Input, Processed)
-			if (not Picking and not Processed) then
+			if (not Picking and not Library.KeybindPicking and not Processed and not InputService:GetFocusedTextBox()) then
+				if ParentObj.Type == 'Toggle' and not ParentObj.Value and not KeyPicker.SyncToggleState then return end;
 				if KeyPicker.Mode == 'Toggle' then
 					local Key = KeyPicker.Value;
 
@@ -2315,6 +2322,8 @@ do
 				if Addon.Type == 'KeyPicker' then
 					if (Addon.SyncToggleState) then
 						Addon.Toggled = Bool
+					elseif not Bool then
+						Addon.Toggled = false;
 					end;
 					Addon:Update()
 				end
@@ -4468,11 +4477,15 @@ function Library:CreateWindow(...)
 	end
 
 	Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
+		if Processed or Library.KeybindPicking or InputService:GetFocusedTextBox() then return end
 		if type(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
-			if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == Library.ToggleKeybind.Value then
+			local key = Library.ToggleKeybind.Value
+			if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode.Name == key
+				or key == 'MB1' and Input.UserInputType == Enum.UserInputType.MouseButton1
+				or key == 'MB2' and Input.UserInputType == Enum.UserInputType.MouseButton2 then
 				task.spawn(Library.Toggle)
 			end
-		elseif Input.KeyCode == Enum.KeyCode.RightControl or (Input.KeyCode == Enum.KeyCode.RightShift and (not Processed)) then
+		elseif Input.KeyCode == Enum.KeyCode.RightControl or Input.KeyCode == Enum.KeyCode.RightShift then
 			task.spawn(Library.Toggle)
 		end
 	end))
